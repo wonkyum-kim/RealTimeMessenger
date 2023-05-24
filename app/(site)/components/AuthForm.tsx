@@ -1,11 +1,15 @@
 'use client';
 
-import Button from '@/app/components/Button';
+import axios from 'axios';
 import Input from '@/app/components/inputs/Input';
-import { useCallback, useState } from 'react';
-import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
+import Button from '@/app/components/Button';
+import { signIn } from 'next-auth/react';
 import AuthSocialButton from './AuthSocialButton';
+import { useState, useCallback, useEffect } from 'react';
+import { useForm, FieldValues, SubmitHandler } from 'react-hook-form';
 import { BsGithub, BsGoogle } from 'react-icons/bs';
+import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 type Variant = 'LOGIN' | 'REGISTER';
 
@@ -21,7 +25,8 @@ interface GoLoginOrRegisterProps {
 }
 
 function Form({ variant, isLoading, setIsLoading }: FormProps) {
-  // react-hook-form
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -36,50 +41,60 @@ function Form({ variant, isLoading, setIsLoading }: FormProps) {
 
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     setIsLoading(true);
-
-    // TODO: Axios register
     if (variant === 'REGISTER') {
+      axios
+        .post('/api/register', data)
+        .catch(() => toast.error('Something went wrong!'))
+        .finally(() => setIsLoading(false));
     }
-
-    // TODO: NextAuth SignIn
     if (variant === 'LOGIN') {
+      signIn('credentials', {
+        ...data,
+        redirect: false,
+      })
+        .then((callback) => {
+          if (callback?.error) {
+            toast.error('Invalid credentials!');
+          } else if (callback?.ok) {
+            router.push('/conversations');
+          }
+        })
+        .finally(() => setIsLoading(false));
     }
   };
 
   return (
-    <form className='space-y-6' onSubmit={handleSubmit(onSubmit)}>
-      {/* Register an account */}
+    <form className='flex flex-col gap-y-6' onSubmit={handleSubmit(onSubmit)}>
       {variant === 'REGISTER' && (
         <Input
-          disabled={isLoading}
-          register={register}
-          errors={errors}
-          required
           id='name'
           label='Name'
+          register={register}
+          errors={errors}
+          disabled={isLoading}
         />
       )}
       <Input
-        disabled={isLoading}
-        register={register}
-        errors={errors}
-        required={true}
         id='email'
         label='Email address'
         type='email'
-      />
-      <Input
-        disabled={isLoading}
         register={register}
         errors={errors}
-        required
+        disabled={isLoading}
+      />
+      <Input
         id='password'
         label='Password'
         type='password'
+        register={register}
+        errors={errors}
+        disabled={isLoading}
       />
-      <Button disabled={isLoading} fullWidth={true} type='submit'>
-        {variant === 'LOGIN' ? 'Sign in' : 'Register'}
-      </Button>
+      <div>
+        <Button disabled={isLoading} fullWidth={true} type='submit'>
+          {variant === 'LOGIN' ? 'Sign in' : 'Register'}
+        </Button>
+      </div>
     </form>
   );
 }
@@ -123,33 +138,40 @@ function GoLoginOrRegister({ variant, toggleVariant }: GoLoginOrRegisterProps) {
 export default function AuthForm() {
   const [variant, setVariant] = useState<Variant>('LOGIN');
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const toggleVariant = useCallback(() => {
-    if (variant === 'LOGIN') {
-      setVariant('REGISTER');
-    } else {
-      setVariant('LOGIN');
-    }
+    variant === 'LOGIN' ? setVariant('REGISTER') : setVariant('LOGIN');
   }, [variant]);
 
   const socialAction = (action: string) => {
     setIsLoading(true);
 
-    // TODO: NextAuth Social Sign In
+    signIn(action, { redirect: false })
+      .then((callback) => {
+        if (callback?.error) {
+          toast.error('Invalid credentials!');
+        }
+
+        if (callback?.ok) {
+          router.push('/conversations');
+        }
+      })
+      .finally(() => setIsLoading(false));
   };
 
   return (
-    <div className='sm:mx-auto sm:w-full sm:max-w-md'>
+    <div className='sm:mx-auto sm:w-full sm:max-w-md flex flex-col gap-y-6'>
       <div
         className='
           flex
           flex-col
           gap-y-6
-        bg-white
-          px-4
-          py-8
-          shadow
-          sm:rounded-lg
+        bg-white 
+          px-4 
+          py-8 
+          shadow 
+          sm:rounded-lg 
           sm:px-10
         '
       >
@@ -169,8 +191,8 @@ export default function AuthForm() {
             onClick={() => socialAction('google')}
           />
         </div>
-        <GoLoginOrRegister variant={variant} toggleVariant={toggleVariant} />
       </div>
+      <GoLoginOrRegister variant={variant} toggleVariant={toggleVariant} />
     </div>
   );
 }
