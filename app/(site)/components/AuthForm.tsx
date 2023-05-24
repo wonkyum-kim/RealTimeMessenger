@@ -3,7 +3,7 @@
 import axios from 'axios';
 import Input from '@/app/components/inputs/Input';
 import Button from '@/app/components/Button';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import AuthSocialButton from './AuthSocialButton';
 import { useState, useCallback, useEffect } from 'react';
 import { useForm, FieldValues, SubmitHandler } from 'react-hook-form';
@@ -138,7 +138,15 @@ function GoLoginOrRegister({ variant, toggleVariant }: GoLoginOrRegisterProps) {
 export default function AuthForm() {
   const [variant, setVariant] = useState<Variant>('LOGIN');
   const [isLoading, setIsLoading] = useState(false);
+
   const router = useRouter();
+  const session = useSession();
+
+  useEffect(() => {
+    if (session?.status === 'authenticated') {
+      router.push('/users');
+    }
+  }, [session?.status, router]);
 
   const toggleVariant = useCallback(() => {
     variant === 'LOGIN' ? setVariant('REGISTER') : setVariant('LOGIN');
@@ -151,9 +159,7 @@ export default function AuthForm() {
       .then((callback) => {
         if (callback?.error) {
           toast.error('Invalid credentials!');
-        }
-
-        if (callback?.ok) {
+        } else if (callback?.ok) {
           router.push('/conversations');
         }
       })
