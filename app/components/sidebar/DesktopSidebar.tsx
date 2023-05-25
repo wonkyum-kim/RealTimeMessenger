@@ -25,7 +25,7 @@ export default function DesktopSidebar({ currentUser }: DesktopSidebarProps) {
         lg:overflow-y-auto 
       lg:bg-white 
         lg:border-r-[1px]
-        lg:pb-4
+        lg:py-4
         lg:flex
         lg:flex-col
         lg:justify-between
@@ -34,7 +34,7 @@ export default function DesktopSidebar({ currentUser }: DesktopSidebarProps) {
       '
     >
       <nav className='flex flex-col justify-between'>
-        <ul role='list' className='flex flex-col items-center space-y-1'>
+        <ul role='list' className='flex flex-col items-center gap-y-1'>
           {routes.map((item) => (
             <DesktopItem
               key={item.label}
