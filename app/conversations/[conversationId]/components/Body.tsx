@@ -16,6 +16,10 @@ export default function Body({ initialMessages }: BodyProps) {
 
   const { conversationId } = useConversation();
 
+  useEffect(() => {
+    axios.post(`/api/conversations/${conversationId}/seen`);
+  }, [conversationId]);
+
   return (
     <div className='flex-1 overflow-y-auto'>
       {messages.map((message, i) => (
