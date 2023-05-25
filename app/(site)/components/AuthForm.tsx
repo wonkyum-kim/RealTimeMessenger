@@ -44,6 +44,7 @@ function Form({ variant, isLoading, setIsLoading }: FormProps) {
     if (variant === 'REGISTER') {
       axios
         .post('/api/register', data)
+        .then(() => signIn('credentials', data))
         .catch(() => toast.error('Something went wrong!'))
         .finally(() => setIsLoading(false));
     }
@@ -56,7 +57,7 @@ function Form({ variant, isLoading, setIsLoading }: FormProps) {
           if (callback?.error) {
             toast.error('Invalid credentials!');
           } else if (callback?.ok) {
-            router.push('/conversations');
+            router.push('/users');
           }
         })
         .finally(() => setIsLoading(false));
