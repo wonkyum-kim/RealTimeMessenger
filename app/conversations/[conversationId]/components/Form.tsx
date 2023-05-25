@@ -20,7 +20,6 @@ export default function Form() {
     },
   });
 
-  // TODO: Make the '/api/messages' route handler
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     setValue('message', '', { shouldValidate: true });
     axios.post('/api/messages', {
