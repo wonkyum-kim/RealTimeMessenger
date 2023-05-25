@@ -26,6 +26,7 @@ export default function Avatar({ user }: AvatarProps) {
           fill={true}
           src={user?.image || '/images/placeholder.jpg'}
           alt='Avatar'
+          sizes='md:h-11 md:w-11'
         />
       </div>
       {/* TODO: user의 상태가 active일 때만 적용하기 */}
