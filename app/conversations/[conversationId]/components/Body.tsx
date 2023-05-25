@@ -2,6 +2,7 @@
 
 import axios from 'axios';
 import useConversation from '@/app/hooks/useConversation';
+import MessageBox from './MessageBox';
 import { useEffect, useRef, useState } from 'react';
 import { FullMessageType } from '@/app/types';
 
@@ -10,5 +11,21 @@ interface BodyProps {
 }
 
 export default function Body({ initialMessages }: BodyProps) {
-  return <div className='flex-1 overflow-y-auto'></div>;
+  const [messages, setMessages] = useState(initialMessages);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  const { conversationId } = useConversation();
+
+  return (
+    <div className='flex-1 overflow-y-auto'>
+      {messages.map((message, i) => (
+        <MessageBox
+          isLast={i === messages.length - 1}
+          key={message.id}
+          data={message}
+        />
+      ))}
+      <div className='pt-24' ref={bottomRef} />
+    </div>
+  );
 }
