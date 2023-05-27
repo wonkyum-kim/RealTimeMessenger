@@ -82,7 +82,7 @@ export default function ConversationList({
       pusherClient.unbind('conversation:update', updateHandler);
       pusherClient.unbind('conversation:remove', removeHandler);
     };
-  }, [pusherKey]);
+  }, [pusherKey, conversationId, router]);
 
   return (
     <>
