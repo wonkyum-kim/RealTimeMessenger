@@ -9,6 +9,7 @@ import { Conversation, User } from '@prisma/client';
 import { useMemo, Fragment, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { IoClose, IoTrash } from 'react-icons/io5';
+import useActiveList from '@/app/hooks/useActiveList';
 
 interface UserProfileProps {
   otherUser: User;
@@ -178,8 +179,9 @@ export default function ProfileDrawer({
   data,
 }: ProfileDrawerProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
-
+  const { members } = useActiveList();
   const otherUser = useOtherUser(data);
+  const isActive = members.indexOf(otherUser?.email!) !== -1;
 
   const joinedDate = useMemo(() => {
     return format(new Date(otherUser.createdAt), 'PP');
@@ -194,8 +196,8 @@ export default function ProfileDrawer({
       return `${data.users.length} members`;
     }
 
-    return 'Active';
-  }, [data]);
+    return isActive ? 'Active' : 'Offline';
+  }, [data, isActive]);
 
   return (
     <>

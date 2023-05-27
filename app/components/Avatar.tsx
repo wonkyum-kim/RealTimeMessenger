@@ -2,12 +2,15 @@
 
 import { User } from '@prisma/client';
 import Image from 'next/image';
+import useActiveList from '../hooks/useActiveList';
 
 interface AvatarProps {
   user?: User | null;
 }
 
 export default function Avatar({ user }: AvatarProps) {
+  const { members } = useActiveList();
+  const isActive = members.indexOf(user?.email!) !== -1;
   return (
     <div className='relative'>
       <div
@@ -29,9 +32,9 @@ export default function Avatar({ user }: AvatarProps) {
           sizes='md:h-11 md:w-11'
         />
       </div>
-      {/* TODO: user의 상태가 active일 때만 적용하기 */}
-      <span
-        className='
+      {isActive && (
+        <span
+          className='
             absolute 
             block 
             rounded-full 
@@ -45,7 +48,8 @@ export default function Avatar({ user }: AvatarProps) {
             md:h-3 
             md:w-3
           '
-      />
+        />
+      )}
     </div>
   );
 }
