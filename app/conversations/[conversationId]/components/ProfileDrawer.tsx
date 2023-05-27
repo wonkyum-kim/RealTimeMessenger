@@ -2,17 +2,20 @@
 
 import useOtherUser from '@/app/hooks/useOtherUser';
 import Avatar from '@/app/components/Avatar';
+import ConfirmModal from './ConfirmModal';
+import AvatarGroup from '@/app/components/AvatarGroup';
 import { format } from 'date-fns';
 import { Conversation, User } from '@prisma/client';
 import { useMemo, Fragment, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { IoClose, IoTrash } from 'react-icons/io5';
-import ConfirmModal from './ConfirmModal';
 
 interface UserProfileProps {
   otherUser: User;
   title: string | null;
   statusText: string;
+  isGroup: boolean;
+  users?: User[];
 }
 
 interface DescriptionProps {
@@ -46,12 +49,17 @@ function ClosePanel({ onClose }: { onClose: () => void }) {
   );
 }
 
-function UserProfile({ otherUser, title, statusText }: UserProfileProps) {
+function UserProfile({
+  otherUser,
+  title,
+  statusText,
+  isGroup,
+  users,
+}: UserProfileProps) {
   return (
     <>
       <div className='pb-2'>
-        {/* TODO: AvatarGroup */}
-        <Avatar user={otherUser} />
+        {isGroup ? <AvatarGroup users={users} /> : <Avatar user={otherUser} />}
       </div>
       <div>{title}</div>
       <div className='text-sm text-gray-500'>{statusText}</div>
@@ -228,6 +236,8 @@ export default function ProfileDrawer({
                         otherUser={otherUser}
                         title={title}
                         statusText={statusText}
+                        isGroup={data.isGroup!}
+                        users={data.users}
                       />
                       <DeleteChat setConfirmOpen={setConfirmOpen} />
                       <Description
