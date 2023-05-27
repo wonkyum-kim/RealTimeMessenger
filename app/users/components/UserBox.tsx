@@ -3,6 +3,7 @@ import Avatar from '@/app/components/Avatar';
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { User } from '@prisma/client';
+import LoadingModal from '@/app/components/modals/LoadingModal';
 
 interface UserBoxProps {
   user: User;
@@ -24,9 +25,11 @@ export default function UserBox({ user }: UserBoxProps) {
   }, [user, router]);
 
   return (
-    <div
-      onClick={handleClick}
-      className='
+    <>
+      {isLoading && <LoadingModal />}
+      <div
+        onClick={handleClick}
+        className='
           w-full 
           relative 
           flex 
@@ -39,15 +42,16 @@ export default function UserBox({ user }: UserBoxProps) {
           transition
           cursor-pointer
         '
-    >
-      <Avatar user={user} />
-      <div className='min-w-0 flex-1'>
-        <div className='focus:outline-none'>
-          <div className='flex justify-between items-center mb-1'>
-            <p className='text-sm font-medium text-gray-900'>{user?.name}</p>
+      >
+        <Avatar user={user} />
+        <div className='min-w-0 flex-1'>
+          <div className='focus:outline-none'>
+            <div className='flex justify-between items-center mb-1'>
+              <p className='text-sm font-medium text-gray-900'>{user?.name}</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
