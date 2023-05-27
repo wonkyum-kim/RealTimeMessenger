@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { format } from 'date-fns';
 import { useSession } from 'next-auth/react';
 import { FullMessageType } from '@/app/types';
+import ImageModal from './ImageModal';
 
 interface MessageBoxProps {
   data: FullMessageType;
@@ -15,6 +16,7 @@ interface MessageBoxProps {
 
 export default function MessageBox({ data, isLast }: MessageBoxProps) {
   const session = useSession();
+  const [imageModalOpen, setImageModalOpen] = useState(false);
 
   // 내가 보낸 메시지인지 확인
   const isOwn = session.data?.user?.email === data?.sender?.email;
@@ -46,19 +48,25 @@ export default function MessageBox({ data, isLast }: MessageBoxProps) {
           </div>
         </div>
         <div className={message}>
+          <ImageModal
+            src={data.image}
+            isOpen={imageModalOpen}
+            onClose={() => setImageModalOpen(false)}
+          />
           {data.image ? (
             <Image
               alt='Image'
               height='288'
               width='288'
-              onClick={() => {}}
+              onClick={() => setImageModalOpen(true)}
               src={data.image}
               className='
                 object-cover 
                 cursor-pointer 
                 hover:scale-110 
                 transition 
-            '
+                translate
+              '
             />
           ) : (
             <div>{data.body}</div>
