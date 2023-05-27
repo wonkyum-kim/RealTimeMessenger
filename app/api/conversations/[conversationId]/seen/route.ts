@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server';
-
 import getCurrentUser from '@/app/actions/getCurrentUser';
 import prisma from '@/app/libs/prismadb';
+import { pusherServer } from '@/app/libs/pusher';
+import { NextResponse } from 'next/server';
 
 interface IParams {
   conversationId?: string;
@@ -58,6 +58,22 @@ export async function POST(request: Request, { params }: { params: IParams }) {
         },
       },
     });
+
+    await pusherServer.trigger(currentUser.email, 'conversation:update', {
+      id: conversationId,
+      messages: [updatedMessage],
+    });
+
+    // 이미 사용자가 메시지를 봤으면 더 이상 진행하지 않음.
+    if (lastMessage.seenIds.indexOf(currentUser.id) !== -1) {
+      return NextResponse.json(conversation);
+    }
+
+    await pusherServer.trigger(
+      conversationId!,
+      'message:update',
+      updatedMessage
+    );
 
     return NextResponse.json(updatedMessage);
   } catch (error) {
